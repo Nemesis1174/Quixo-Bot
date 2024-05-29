@@ -1,9 +1,8 @@
 import os
-import sys
 from tabulate import tabulate
 import time
 from quixo_bot import QuixoBot
-from quixo_player import QuixoPlayer
+from quixo_player import QuixoHuman
 
 class QuixoGame:
     def __init__(self, player1, player2):
@@ -40,9 +39,10 @@ class QuixoGame:
         while True:
             if turn % 2 == 0:
                 time1 = time.time()
+                print("Bot's Turn:")
                 self.board = self.player1.play_turn(self.board)
                 time2 = time.time()
-                print("Time taken: ", time2 - time1)
+                print("Bot's Time taken: ", time2 - time1)
                 self.print_board(self.board)
                 winner = self.check_winner(self.board)
                 if winner != 0:
@@ -50,9 +50,10 @@ class QuixoGame:
                     break
             else:
                 time1 = time.time()
+                print("Your Turn:")
                 self.board = self.player2.play_turn(self.board)
                 time2 = time.time()
-                print("Time taken: ", time2 - time1)
+                print("Your Time taken: ", time2 - time1)
                 self.print_board(self.board)
                 winner = self.check_winner(self.board)
                 if winner != 0:
@@ -64,9 +65,13 @@ class QuixoGame:
         headers = [""] + [str(i) for i in range(1, 6)]
         rows = [[str(i + 1)] + ['O' if cell == -1 else 'X' if cell == 1 else ' ' for cell in row] for i, row in enumerate(self.board)]
         print(tabulate(rows, headers=headers, tablefmt="fancy_grid"))
+        print()
+
+os.system('cls')
 
 if __name__ == "__main__":
     player1 = QuixoBot(1)
-    player2 = QuixoPlayer(-1)
+    player2 = QuixoHuman(-1)
     game = QuixoGame(player1, player2)
     game.play_game()
+
