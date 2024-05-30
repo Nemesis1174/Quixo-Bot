@@ -1,5 +1,4 @@
 from minimax import Minimax
-import os
 
 class QuixoBot:
     def __init__(self, symbol):
@@ -60,8 +59,7 @@ class QuixoBot:
     def reset(self, symbol):
         self.symbol = symbol
 
-os.system('cls')
-
+'''
 # Creamos el tablero inicial
 board = [[0] * 5 for _ in range(5)]
 # Inicializamos el bot
@@ -71,4 +69,5 @@ bot = QuixoBot(1)
 for _ in range(5):
     board = bot.play_turn(board)
     bot.print_board(board)
+'''
 
