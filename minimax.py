@@ -72,3 +72,4 @@ class Minimax:
             new_board[row][4] = symbol
         return new_board
 
+
