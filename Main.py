@@ -2,7 +2,8 @@ import os
 from tabulate import tabulate
 import time
 from quixo_bot import QuixoBot
-from quixo_player import QuixoHuman
+from quixo_player import Player
+
 
 class QuixoGame:
     def __init__(self, player1, player2):
@@ -36,29 +37,20 @@ class QuixoGame:
 
     def play_game(self):
         turn = 0
+        players = [self.player1, self.player2]
         while True:
-            if turn % 2 == 0:
-                time1 = time.time()
-                print("Bot's Turn:")
-                self.board = self.player1.play_turn(self.board)
-                time2 = time.time()
-                print("Bot's Time taken: ", time2 - time1)
-                self.print_board(self.board)
-                winner = self.check_winner(self.board)
-                if winner != 0:
-                    print("Player", winner, "wins!")
-                    break
-            else:
-                time1 = time.time()
-                print("Your Turn:")
-                self.board = self.player2.play_turn(self.board)
-                time2 = time.time()
-                print("Your Time taken: ", time2 - time1)
-                self.print_board(self.board)
-                winner = self.check_winner(self.board)
-                if winner != 0:
-                    print("Player", winner, "wins!")
-                    break
+            current_player = players[turn % 2]
+            player_name = "Bot" if isinstance(current_player, QuixoBot) else "Your"
+            print(f"{player_name} Turn:")
+            time1 = time.time()
+            self.board = current_player.play_turn(self.board)
+            time2 = time.time()
+            print(f"{player_name} Time taken: {time2 - time1}")
+            self.print_board(self.board)
+            winner = self.check_winner(self.board)
+            if winner != 0:
+                print(f"Player {winner} wins!")
+                break
             turn += 1
     
     def print_board(self, board):
@@ -67,11 +59,13 @@ class QuixoGame:
         print(tabulate(rows, headers=headers, tablefmt="fancy_grid"))
         print()
 
+
 os.system('cls')
+
 
 if __name__ == "__main__":
     player1 = QuixoBot(1)
-    player2 = QuixoHuman(-1)
+    player2 = Player(-1)
     game = QuixoGame(player1, player2)
     game.play_game()
 
