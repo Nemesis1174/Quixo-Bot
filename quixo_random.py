@@ -2,6 +2,11 @@ import random
 import copy
 
 class QuixoRandomBot:
+    ALLOWED_PIECES_RIGHT = [(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (3, 0), (4, 0), (4, 1), (4, 2), (4, 3)]
+    ALLOWED_PIECES_LEFT = [(0, 1), (0, 2), (0, 3), (1, 4), (2, 4), (3, 4), (4, 4), (4, 1), (4, 2), (4, 3), (4, 4)]
+    ALLOWED_PIECES_UP = [(1, 0), (1, 4), (2, 0), (2, 4), (3, 0), (3, 4), (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
+    ALLOWED_PIECES_DOWN = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0), (2, 4), (3, 0), (3, 4)]
+
     def __init__(self, symbol):
         self.name = "QuixoRandomBot"
         self.symbol = symbol
@@ -21,8 +26,8 @@ class QuixoRandomBot:
         return board
 
     def is_legal_move(self, row, col, board):
-        invalid_positions = [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3)]
-        return (row == 0 or row == 4 or col == 0 or col == 4) and (board[row][col] in [0, self.symbol]) and (row, col) not in invalid_positions
+        allowed_positions = self.ALLOWED_PIECES_GENERAL
+        return (row, col) in allowed_positions and (board[row][col] in [0, self.symbol])
 
     def get_possible_moves(self, board, row, col, symbol):
         new_boards = []
@@ -37,31 +42,39 @@ class QuixoRandomBot:
         return new_boards
 
     def move_right(self, board, row, col, end_col=4):
-        aux = board[row][col]
-        for i in range(col + 1, end_col + 1):
-            board[row][i-1] = board[row][i]
-        board[row][end_col] = aux
+        piece = board[row][col]
+        if (row, col) in self.ALLOWED_PIECES_RIGHT:
+            if piece == 0 or piece == self.symbol:
+                for i in range(col, end_col):
+                    board[row][i] = board[row][i + 1]
+                board[row][end_col] = self.symbol
         return board
 
     def move_left(self, board, row, col, end_col=0):
-        aux = board[row][col]
-        for i in range(col - 1, end_col-1, -1):
-            board[row][i+1] = board[row][i]
-        board[row][end_col] = aux
+        piece = board[row][col]
+        if (row, col) in self.ALLOWED_PIECES_LEFT:
+            if piece == 0 or piece == self.symbol:
+                for i in range(col, end_col, -1):
+                    board[row][i] = board[row][i - 1]
+                board[row][end_col] = self.symbol
         return board
 
     def move_up(self, board, row, col, end_row=0):
-        aux = board[row][col]
-        for i in range(row-1, end_row-1, -1):
-            board[i+1][col] = board[i][col]
-        board[end_row][col] = aux
+        piece = board[row][col]
+        if (row, col) in self.ALLOWED_PIECES_UP:
+            if piece == 0 or piece == self.symbol:
+                for i in range(row, end_row, -1):
+                    board[i][col] = board[i - 1][col]
+                board[end_row][col] = self.symbol
         return board
 
     def move_down(self, board, row, col, end_row=4):
-        aux = board[row][col]
-        for i in range(row + 1, end_row+1):
-            board[i-1][col] = board[i][col]
-        board[end_row][col] = aux
+        piece = board[row][col]
+        if (row, col) in self.ALLOWED_PIECES_DOWN:
+            if piece == 0 or piece == self.symbol:
+                for i in range(row, end_row):
+                    board[i][col] = board[i + 1][col]
+                board[end_row][col] = self.symbol
         return board
 
     def print_board(self, board):
@@ -72,4 +85,5 @@ class QuixoRandomBot:
     def reset(self, symbol):
         self.symbol = symbol
         self.opponent_symbol = -symbol
+
 
