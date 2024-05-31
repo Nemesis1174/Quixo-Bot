@@ -9,7 +9,7 @@ class QuixoBot:
     ALLOWED_PIECES_GENERAL = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 4), (2, 0), (2, 4), (3, 0), (3, 4), (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
 
     def __init__(self, symbol):
-        self.name = "QuixoBot"
+        self.name = "Chris Bot"
         self.symbol = symbol
         self.opponent_symbol = -symbol
         self.minimax = Minimax(max_depth=3)
