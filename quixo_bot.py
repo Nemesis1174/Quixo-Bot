@@ -1,4 +1,5 @@
 from minimax import Minimax
+import copy
 
 class QuixoBot:
     def __init__(self, symbol):
@@ -16,40 +17,58 @@ class QuixoBot:
         for i in range(5):
             for j in range(5):
                 if self.is_legal_move(i, j, board):
-                    new_board = self.get_board_after_move(board, i, j, self.symbol)
-                    score = self.minimax.minimax(new_board, self.minimax.max_depth, alpha, beta, False, self.symbol, self.opponent_symbol)
-                    if score > best_score:
-                        best_score = score
-                        best_move = (i, j)
+                    possible_moves = self.get_possible_moves(board, i, j, self.symbol)
+                    for new_board in possible_moves:
+                        score = self.minimax.minimax(new_board, self.minimax.max_depth, alpha, beta, False, self.symbol, self.opponent_symbol)
+                        if score > best_score:
+                            best_score = score
+                            best_move = new_board
         
-        if best_move:
-            return self.get_board_after_move(board, best_move[0], best_move[1], self.symbol)
-        return board
+        return best_move if best_move else board
 
     def is_legal_move(self, row, col, board):
         invalid_positions = [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3)]
-        return (row == 0 or row == 4 or col == 0 or col == 4) and (row, col) not in invalid_positions
+        return (row == 0 or row == 4 or col == 0 or col == 4) and (board[row][col] in [0, self.symbol]) and (row, col) not in invalid_positions
 
-    def get_board_after_move(self, board, row, col, symbol):
-        # Mover la pieza desde (row, col) a una nueva posición válida en el borde de la fila o columna
-        new_board = [r[:] for r in board]
+    def get_possible_moves(self, board, row, col, symbol):
+        new_boards = []
         if row == 0:
-            for i in range(4, 0, -1):
-                new_board[i][col] = new_board[i-1][col]
-            new_board[0][col] = symbol
+            new_boards.append(self.move_down(copy.deepcopy(board), row, col))
         elif row == 4:
-            for i in range(4):
-                new_board[i][col] = new_board[i+1][col]
-            new_board[4][col] = symbol
-        elif col == 0:
-            for j in range(4, 0, -1):
-                new_board[row][j] = new_board[row][j-1]
-            new_board[row][0] = symbol
+            new_boards.append(self.move_up(copy.deepcopy(board), row, col))
+        if col == 0:
+            new_boards.append(self.move_right(copy.deepcopy(board), row, col))
         elif col == 4:
-            for j in range(4):
-                new_board[row][j] = new_board[row][j+1]
-            new_board[row][4] = symbol
-        return new_board
+            new_boards.append(self.move_left(copy.deepcopy(board), row, col))
+        return new_boards
+
+    def move_right(self, board, row, col, end_col=4):
+        aux = board[row][col]
+        for i in range(col + 1, end_col + 1):
+            board[row][i-1] = board[row][i]
+        board[row][end_col] = aux
+        return board
+
+    def move_left(self, board, row, col, end_col=0):
+        aux = board[row][col]
+        for i in range(col - 1, end_col-1, -1):
+            board[row][i+1] = board[row][i]
+        board[row][end_col] = aux
+        return board
+
+    def move_up(self, board, row, col, end_row=0):
+        aux = board[row][col]
+        for i in range(row-1, end_row-1, -1):
+            board[i+1][col] = board[i][col]
+        board[end_row][col] = aux
+        return board
+
+    def move_down(self, board, row, col, end_row=4):
+        aux = board[row][col]
+        for i in range(row + 1, end_row+1):
+            board[i-1][col] = board[i][col]
+        board[end_row][col] = aux
+        return board
 
     def print_board(self, board):
         for row in board:
@@ -58,16 +77,5 @@ class QuixoBot:
 
     def reset(self, symbol):
         self.symbol = symbol
-
-'''
-# Creamos el tablero inicial
-board = [[0] * 5 for _ in range(5)]
-# Inicializamos el bot
-bot = QuixoBot(1)
-
-# Hacemos que el bot juegue 5 turnos
-for _ in range(5):
-    board = bot.play_turn(board)
-    bot.print_board(board)
-'''
+        self.opponent_symbol = -symbol
 
