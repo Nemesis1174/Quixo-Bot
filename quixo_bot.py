@@ -1,5 +1,5 @@
-from minimax import Minimax
 import copy
+from minimax import Minimax, GameNode, GameTree
 
 class QuixoBot:
     ALLOWED_PIECES_RIGHT = [(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (3, 0), (4, 0), (4, 1), (4, 2), (4, 3)]
@@ -15,20 +15,11 @@ class QuixoBot:
         self.minimax = Minimax(max_depth=3)
 
     def play_turn(self, board):
-        best_move = None
-        best_score = -float('inf')
-        alpha = -float('inf')
-        beta = float('inf')
-
-        possible_moves = self.generate_moves(board, self.symbol)
-        for move in possible_moves:
-            new_board = self.apply_move(board, move, self.symbol)
-            score = self.minimax.minimax(new_board, self.minimax.max_depth, alpha, beta, False, self.symbol, self.opponent_symbol)
-            if score > best_score:
-                best_score = score
-                best_move = new_board
-
-        return best_move if best_move else board
+        root_node = GameNode(board)
+        game_tree = GameTree(root_node)
+        game_tree.build_tree(self, depth=3, maximizing_player=True)
+        best_move = self.minimax.search_best_move(root_node, self.symbol, self.opponent_symbol)
+        return self.apply_move(board, best_move, self.symbol) if best_move else board
 
     def generate_moves(self, board, symbol):
         moves = []
@@ -96,6 +87,23 @@ class QuixoBot:
                     board[i][col] = board[i + 1][col]
                 board[end_row][col] = self.symbol
 
+    def is_winner(self, board, symbol):
+        for row in board:
+            if all(cell == symbol for cell in row):
+                return True
+
+        for col in range(5):
+            if all(board[row][col] == symbol for row in range(5)):
+                return True
+
+        if all(board[i][i] == symbol for i in range(5)):
+            return True
+
+        if all(board[i][4 - i] == symbol for i in range(5)):
+            return True
+
+        return False
+
     def print_board(self, board):
         for row in board:
             print(" ".join(str(cell) for cell in row))
@@ -104,5 +112,3 @@ class QuixoBot:
     def reset(self, symbol):
         self.symbol = symbol
         self.opponent_symbol = -symbol
-
-
