@@ -1,7 +1,16 @@
 import copy
+import os
+import sys
 from tabulate import tabulate
 
 from collections import defaultdict
+
+script_dir = os.getcwd()
+func_dir = os.path.join(script_dir)
+sys.path.append(func_dir)
+
+import quixo_bot as qb
+import quixo_random as qr
 
 class QuixoReferee:
     def __init__(self, player1, player2):
@@ -10,6 +19,7 @@ class QuixoReferee:
         self.player1 = player1
         # -1
         self.player2 = player2
+        self.losing_boards = []  # Lista para guardar los tableros finales donde kuri bot pierde
 
     # it can happen that both players win at the same time.
     # if this happens, the player that is not his turn wins.
@@ -234,7 +244,7 @@ class QuixoReferee:
         if self.__is_valid_move(new_board, player.symbol):
             winning_pos, winning_sym = self.__is_winning_position(new_board, player.symbol)
             if winning_pos:
-                print("Symbol", 'O' if winning_sym == -1 else 'X', "wins!")
+                print("Symbol ", winning_sym, "wins!")
                 self.__print_board(self.board)
                 return True, winning_sym
         else:
@@ -255,6 +265,8 @@ class QuixoReferee:
                 wins, sym = self.__play_turn(self.player2)
 
             if wins:
+                # if sym == 1:
+                    # self.losing_boards.append(copy.deepcopy(self.board))
                 return sym
         
         print("Limit of turns reached. Game ends in a draw.")
@@ -273,14 +285,15 @@ class QuixoReferee:
             self.player1.reset(symbol_p1)
             self.player2.reset(symbol_p2)
 
-            print(self.player1.name, 'with symbol', 'O' if symbol_p1 == -1 else 'X')
-            print(self.player2.name, 'with symbol', 'O' if symbol_p2 == -1 else 'X') 
+            print(self.player1.name, 'with symbol', symbol_p1)
+            print(self.player2.name, 'with symbol', symbol_p2) 
 
             winner = self.play_game(limit_turns)
 
             if self.player1.symbol == winner:
                 print(self.player1.name, "WINS!")
                 score[self.player1.name] += 1
+                self.losing_boards.append(copy.deepcopy(self.board))
             elif self.player2.symbol == winner:
                 print(self.player2.name, "WINS!")
                 score[self.player2.name] += 1
@@ -297,15 +310,23 @@ class QuixoReferee:
         elif (score[self.player1.name] < score[self.player2.name]): print(self.player2.name, "WINS!")
         else: print("IT'S A DRAW!") 
 
+        self.__print_losing_boards()  # Imprime los tableros al final de todas las partidas
 
-    def __print_board(self, board=None):
+    def __print_board(self, board):
         if board is None:
             board = self.board
         headers = [""] + [str(i) for i in range(1, 6)]
         rows = [[str(i + 1)] + ['O' if cell == -1 else 'X' if cell == 1 else ' ' for cell in row] for i, row in enumerate(board)]
         print(tabulate(rows, headers=headers, tablefmt="grid"))
+    
+    def __print_losing_boards(self):
+        print("\nTableros donde kuri bot (bot2) perdió:")
+        for idx, board in enumerate(self.losing_boards, 1):
+            print(f"\nTablero {idx}:")
+            self.__print_board(board)
 
-"""
+bot1 = qr.QuixoRandomBot(1)
+bot2 = qb.QuixoBot(-1)
+
 referee = QuixoReferee(bot1, bot2)
-referee.play_match(50, 100)
-"""
+referee.play_match(20, 100)
