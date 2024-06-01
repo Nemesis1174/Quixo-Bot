@@ -12,12 +12,12 @@ class QuixoBot:
         self.name = "Chris Bot"
         self.symbol = symbol
         self.opponent_symbol = -symbol
-        self.minimax = Minimax(max_depth=3)
+        self.minimax = Minimax(max_depth=2)
 
     def play_turn(self, board):
         root_node = GameNode(board)
         game_tree = GameTree(root_node)
-        game_tree.build_tree(self, depth=3, maximizing_player=True)
+        game_tree.build_tree(self, depth=2, maximizing_player=True)
         best_move = self.minimax.search_best_move(root_node, self.symbol, self.opponent_symbol)
         return self.apply_move(board, best_move, self.symbol) if best_move else board
 
@@ -112,3 +112,4 @@ class QuixoBot:
     def reset(self, symbol):
         self.symbol = symbol
         self.opponent_symbol = -symbol
+
